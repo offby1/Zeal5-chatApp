@@ -19,9 +19,10 @@ services:
     networks:
       - webnet
 
+
   chatapp:
     build: .
-    command: ["/bin/bash", "-c", "python3 manage.py makemigrations && python3 manage.py migrate && daphne -b 0.0.0.0 -p 8000 chatserver.asgi:application"]
+    command: ["/bin/bash", "-c", "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 chatserver.asgi:application"]
     volumes:
       - .:/app
     ports:
