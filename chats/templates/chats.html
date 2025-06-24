@@ -1,0 +1,87 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Rooms</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .container { display: flex; }
+        .user-list { width: 20%; padding: 10px; border-right: 1px solid #ccc; }
+        .chat-container { width: 80%; padding: 10px; }
+        .user { padding: 8px; cursor: pointer; }
+        .user:hover { background-color: #f0f0f0; }
+        .room { margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; }
+        .active-room { background-color: #e0e0e0; }
+        .message { margin-bottom: 10px; padding: 8px; border-radius: 4px; }
+        .sent { background-color: #dcf8c6; text-align: right; }
+        .received { background-color: #f1f1f1; }
+        #message-input { width: 80%; padding: 8px; }
+        #send-button { padding: 8px 16px; }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ request.user.username }}</h1>
+
+
+		<form action="{% url 'logout' %}" method="post">
+			{% csrf_token %}
+			<button type="submit" class="logout-btn">Logout</button>
+    </form>
+
+
+    <div class="container">
+        <div class="user-list">
+            <h2>Users</h2>
+            {% for user in users %}
+                <div class="user" onclick="startChat('{{ user.username }}')">
+                    {{ user.username }}
+                </div>
+            {% endfor %}
+            
+            <h2>Your Chats</h2>
+            {% for room in rooms %}
+                <div class="room {% if room.name == room_name %}active-room{% endif %}" 
+                     onclick="joinRoom('{{ room.name }}')">
+                    {% if room.user1 == request.user %}
+                        Chat with {{ room.user2.username }}
+                    {% else %}
+                        Chat with {{ room.user1.username }}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+			<div class="chat-container" id="chat-container" data-room-name="{{ current_room }}" data-username="{{ request.user.username }}">
+            {% if current_room %}
+							<p>{{ current_room }}</p>
+								<h2>
+										{% if current_room.user1 == request.user %}
+												Chat with {{ current_room.user2.username }}
+										{% else %}
+												Chat with {{ current_room.user1.username }}
+										{% endif %}
+								</h2>
+                
+                <div id="messages">
+                    {% for message in messages %}
+                        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                            <strong>{{ message.sender.username }}:</strong>
+                            <p>{{ message.content }}</p>
+                            <small>{{ message.timestamp }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div>
+                    <input type="text" id="message-input" placeholder="Type your message...">
+                    <button id="send-button">Send</button>
+                </div>
+            {% else %}
+                <p>Select a user to start chatting</p>
+            {% endif %}
+        </div>
+    </div>
+<script src="{% static 'chats/js/scripts.js' %}"></script>
+<script src="{% static 'chats/js/websocket.js' %}"></script>
+</body>
+</html>
