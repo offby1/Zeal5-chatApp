@@ -17,6 +17,9 @@ COPY . .
 # Expose port 8000 for Daphne
 EXPOSE 8000
 
+RUN ["python3", "manage.py", "makemigrations"]
+RUN ["python3", "manage.py", "migrate"]
+
 # Default command to run Daphne server
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "chatserver.asgi:application"]
 
